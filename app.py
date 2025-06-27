@@ -198,7 +198,19 @@ def index():
                 'ffmpeg_location': ffmpeg_path,
                 'writethumbnail': True,
                 'postprocessors': [],
+                # ボット対策の強化設定
+                'sleep_interval': 5,
+                'max_sleep_interval': 10,
+                'extractor_retries': 3,
+                'source_address': '0.0.0.0',
+                'http_headers': {
+                    'User-Agent': os.environ.get('USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'),
+                    'Accept-Language': 'ja-JP,ja;q=0.9',
+                },
+                'cookiefile': os.environ.get('COOKIE_FILE', 'cookies.txt'),
                 'progress_hooks': [download_progress_hook],
+                # プロキシ設定（必要に応じて）
+                # 'proxy': os.environ.get('YTDLP_PROXY', ''),
             }
             expected_ext = 'mp4'
             if fmt.startswith('video_'):
