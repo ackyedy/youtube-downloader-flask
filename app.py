@@ -37,7 +37,7 @@ import sys
 from pathlib import Path
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_change_this_in_production"
+app.secret_key = os.environ.get("SECRET_KEY", "your_fallback_secret_key_for_development")
 
 # ログ設定
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
