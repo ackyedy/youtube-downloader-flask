@@ -177,7 +177,12 @@ def index():
         try:
             # yt-dlp オプション
             ydl_opts = {
-                'format': None,  # 以下で指定
+                'format': None,  # 以下で設定
+                # ---- 追加対策: ブラウザCookie取得 ----
+                'cookies_from_browser': ('chrome',),
+                'nocheckcertificate': True,
+                # -----------------------------
+                'outtmpl': os.path.join(temp_dir, '%(title)s.%(ext)s'),  # 以下で指定
                 'outtmpl': os.path.join(temp_dir, '%(title)s.%(ext)s'),
                 'restrictfilenames': False,
                 'addmetadata': True,
