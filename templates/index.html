@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>どうが だうんろーだぁ 🚀</title>
+  <link rel="icon" href="{{ url_for('static', filename='yt-dlp_image.png') }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background-animation">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+    <div class="floating-shape shape-4"></div>
+    <div class="floating-shape shape-5"></div>
+    <div class="floating-shape shape-6"></div>
+    <div class="floating-shape shape-7"></div>
+    <div class="floating-shape shape-8"></div>
+    <div class="floating-shape shape-9"></div>
+    <div class="floating-shape shape-10"></div>
+  </div>
+
+  <div class="container">
+    {% if not ffmpeg_available %}
+      <div class="ffmpeg-warning">
+        ⚠️ ffmpegがインストールされていません。サムネイルの埋め込みに失敗する可能性があります。
+      </div>
+    {% endif %}
+    <header class="header">
+      <h1 class="title">
+        <span class="title-icon">🎬</span>
+        どうが だうんろーだぁ
+        <span class="beta-badge">BETA</span>
+      </h1>
+      <p class="subtitle">動画・音声ダウンロードツール</p>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <div class="alert-icon">
+              {% if category == 'success' %}⭐{% elif category == 'error' %}⚠️{% else %}ℹ️{% endif %}
+            </div>
+            <div class="alert-message">{{ message }}</div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="download-section">
+      <form id="dl-form" method="post" class="download-form">
+        <div class="input-group">
+          <div class="input-wrapper">
+            <div class="input-icon">🔗</div>
+            <input type="text" id="url-input" name="url" placeholder="URLを入力してください..." class="input-url" required>
+            <button type="button" id="paste-btn" class="btn-paste" title="クリップボードから貼り付け">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-clipboard-plus" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path fill-rule="evenodd" d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zM8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="format-selection">
+          <label class="format-label">ダウンロード形式を選択</label>
+          <div class="format-grid">
+            {% for val, label, icon in FORMATS %}
+              <label class="format-option format-btn">
+                <input type="radio" name="format" value="{{ val }}" {% if loop.index == 3 %}checked{% endif %}>
+                <div class="format-card">
+                  <div class="format-icon">{{ icon }}</div>
+                  <div class="format-name">{{ label }}</div>
+                </div>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="submit" class="btn-download">
+          <span class="btn-text">ダウンロード開始</span>
+          <span class="btn-icon">⚡</span>
+        </button>
+      </form>
+    </div>
+
+    {% if metadata %}
+      <div class="result-section">
+        <div class="result-card">
+          <div class="result-header">
+            <h2>準備完了！</h2>
+            <div class="success-icon">✅</div>
+          </div>
+
+          <div class="media-info">
+            <div class="thumbnail-container">
+              {# 画像パスに日本語が含まれる場合はurlencodeフィルタでエンコード #}
+              <img src="{{ metadata.thumbnail }}" alt="サムネイル" class="thumbnail" onerror="this.onerror=null;this.src='{{ url_for('static', filename='yt-dlp_image.png') }}'">
+            </div>
+
+            <div class="info-panel">
+              <h3 class="media-title">{{ metadata.title }}</h3>
+
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">👤 チャンネル</span>
+                  <span class="info-value">{{ metadata.uploader }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">⏱️ 再生時間</span>
+                  <span class="info-value">{{ metadata.duration }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">👁️ 再生回数</span>
+                  <span class="info-value">{{ metadata.views }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">📅 公開日</span>
+                  <span class="info-value">{{ metadata.upload_date }}</span>
+                </div>
+              </div>
+
+              <a href="{{ url_for('download_file', filename=metadata.filename) }}" class="download-btn">
+                <span class="download-text">ファイルをダウンロード</span>
+                <span class="download-format">({{ metadata.ext }})</span>
+                <span class="download-icon">⬇️</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-container">
+      <div class="loading-bar-container">
+        <div class="loading-bar"></div>
+      </div>
+      <div class="loading-text">
+        <h3>処理中...</h3>
+        <p>あきぃが動画を掘り出し中...</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2025 どうが だうんろーだぁ. Developed by あきぃ. All rights reserved.</p>
+  </footer>
+
+  
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const shapes = document.querySelectorAll('.floating-shape');
+      shapes.forEach(shape => {
+        const durLarge = Math.random() * 20 + 20;   // 大きく動く時間
+        const durBob   = Math.random() * 4 + 4;     // 上下浮動の時間
+        const durBlob  = Math.random() * 6 + 6;     // ぷよぷよ変形の時間
+        shape.style.animation = 
+          `floatComplex ${durLarge}s ease-in-out infinite alternate, ` +
+          `floatUpDown ${durBob}s ease-in-out infinite alternate, ` +
+          `blob ${durBlob}s ease-in-out infinite alternate`;
+
+        shape.addEventListener('mouseenter', e => {
+          const rect = shape.getBoundingClientRect();
+          const midX = rect.left + rect.width / 2;
+          const midY = rect.top  + rect.height / 2;
+          const dx = midX - e.clientX;
+          const dy = midY - e.clientY;
+          const angle = Math.atan2(dy, dx);
+          const dist = 100;
+          const offsetX = Math.cos(angle) * dist;
+          const offsetY = Math.sin(angle) * dist;
+          shape.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+          setTimeout(() => { shape.style.transform = ''; }, 500);
+        });
+      });
+    });
+
+    // フォーマット選択時に選択中のボタン自体の色を変える
+    document.addEventListener('DOMContentLoaded', function() {
+      const formatOptions = document.querySelectorAll('.format-option input[type="radio"]');
+      formatOptions.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+          document.querySelectorAll('.format-card').forEach(card => card.classList.remove('selected'));
+          if (radio.checked) {
+            radio.closest('.format-card').classList.add('selected');
+          }
+        });
+        // 初期選択状態
+        if (radio.checked) {
+          radio.closest('.format-card').classList.add('selected');
+        }
+      });
+    });
+  </script>
+  <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+  <style>
+/* format-cardの選択状態の色をボタン自体に適用 */
+.format-card.selected {
+  border-color: var(--accent-gradient);
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(79,172,254,0.15);
+  transform: translateY(-2px);
+}
+.format-card.selected .format-icon,
+.format-card.selected .format-name {
+  color: #fff;
+}
+</style>
+</body>
+</html>
